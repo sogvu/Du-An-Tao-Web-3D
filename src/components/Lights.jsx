@@ -1,45 +1,61 @@
 import React from 'react';
+import { SoftShadows } from '@react-three/drei';
 
 export default function Lights() {
   return (
     <>
-      {/* Soft environmental ambient light */}
-      <ambientLight intensity={0.5} />
+      {/* Soft Shadow Sampling — eliminates aliased blocky shadow edges */}
+      <SoftShadows size={28} samples={14} focus={0.9} />
 
-      {/* Hemisphere light for rich outdoor sky/ground bounce gradients */}
+      {/* Mild ambient fill so nothing goes fully black */}
+      <ambientLight intensity={0.35} color="#c7d8f0" />
+
+      {/* Sky-dome hemisphere gradient (sky blue → warm ground) */}
       <hemisphereLight
-        args={['#bae6fd', '#1e293b', 0.45]} // Sky light, ground light, intensity
+        args={['#87ceeb', '#5a4128', 0.55]}
+        position={[0, 10, 0]}
       />
 
-      {/* Sun Light (Strong direction to cast crisp low-poly shadows) */}
+      {/* PRIMARY: Sun — strong warm directional with high-res shadows */}
       <directionalLight
-        position={[12, 16, 8]}
-        intensity={2.2}
-        color="#fffcf5" // Warm sun tone
+        name="sun"
+        position={[14, 20, 10]}
+        intensity={2.6}
+        color="#fff8e8"
         castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
-        shadow-camera-far={35}
-        shadow-camera-left={-8}
-        shadow-camera-right={8}
-        shadow-camera-top={8}
-        shadow-camera-bottom={-8}
-        shadow-bias={-0.0002}
-        shadow-normalBias={0.03} // Eliminates low-poly shadow acne/striping
+        shadow-mapSize-width={4096}
+        shadow-mapSize-height={4096}
+        shadow-camera-near={0.1}
+        shadow-camera-far={50}
+        shadow-camera-left={-10}
+        shadow-camera-right={10}
+        shadow-camera-top={10}
+        shadow-camera-bottom={-10}
+        shadow-bias={-0.0001}
+        shadow-normalBias={0.04}
       />
 
-      {/* Warm backlight/rimlight to bring out shapes and edge glow */}
+      {/* FILL: Cool atmospheric scatter from opposite side */}
       <directionalLight
-        position={[-10, 6, -8]}
-        intensity={0.75}
-        color="#fef08a" // Soft golden rim
+        position={[-10, 8, -8]}
+        intensity={0.5}
+        color="#9bbfd4"
       />
 
-      {/* Cool fill light from bottom/side for shadowed areas */}
+      {/* RIM: Warm backlight accent to sculpt 3D edges */}
       <directionalLight
-        position={[0, -5, 0]}
-        intensity={0.2}
-        color="#38bdf8" // Sky reflection bounce
+        position={[-4, 3, 12]}
+        intensity={0.45}
+        color="#ffcc88"
+      />
+
+      {/* BOUNCE: Subtle ocean-water reflective fill from below */}
+      <pointLight
+        position={[0, -1.5, 0]}
+        intensity={0.3}
+        color="#4499cc"
+        distance={10}
+        decay={2}
       />
     </>
   );
