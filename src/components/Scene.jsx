@@ -1,4 +1,5 @@
 import React from 'react';
+import { Sparkles } from '@react-three/drei';
 import Lights from './Lights';
 import Water from './Water';
 import Island from './Island';
@@ -13,8 +14,19 @@ export default function Scene({ activeRegion, regions, activeLandmarkIndex }) {
       {/* Cinematic Lights */}
       <Lights />
 
-      {/* Interactive Water Plane */}
+      {/* Shimmering water plane with shoreline foam and depth parallax */}
       <Water color={activeRegion.theme.waterColor} />
+
+      {/* Ambient glowing atmosphere particles (Sparkles) */}
+      <Sparkles
+        count={80}
+        scale={[10, 6, 10]}
+        size={2.5}
+        speed={0.4}
+        opacity={0.6}
+        color={activeRegion.theme.accent}
+        position={[0, 2, 0]}
+      />
 
       {/* Floating Islands Carousel */}
       {regions.map((region) => (
