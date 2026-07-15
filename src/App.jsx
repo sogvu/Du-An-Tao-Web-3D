@@ -1,15 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import HeroText from './components/HeroText';
 import BottomCards from './components/BottomCards';
 import NavigationControls from './components/NavigationControls';
 import ThreeCanvas from './components/ThreeCanvas';
+import BookingModal from './components/BookingModal';
+import LandmarkDetailModal from './components/LandmarkDetailModal';
 import { regions } from './data/regions';
 import { Minimize2 } from 'lucide-react';
 
 export default function App() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activeLandmarkIndex, setActiveLandmarkIndex] = useState(null);
+  
+  // Modals state
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
+  const [activeDetailedLandmark, setActiveDetailedLandmark] = useState(null);
+
+  // Autoplay state
+  const [isAutoplay, setIsAutoplay] = useState(true);
+
   const activeRegion = regions[currentIndex];
 
   const handleNext = () => {
@@ -22,10 +32,29 @@ export default function App() {
     setActiveLandmarkIndex(null);
   };
 
+  // Autoplay Slideshow logic (pauses if zoomed in or any modal is open)
+  useEffect(() => {
+    if (!isAutoplay || activeLandmarkIndex !== null || isBookingOpen || activeDetailedLandmark !== null) return;
+
+    const interval = setInterval(() => {
+      handleNext();
+    }, 9000); // 9 seconds
+
+    return () => clearInterval(interval);
+  }, [isAutoplay, activeLandmarkIndex, currentIndex, isBookingOpen, activeDetailedLandmark]);
+
   return (
     <div
       className={`relative w-screen h-screen overflow-hidden bg-gradient-to-br ${activeRegion.gradient} transition-all duration-1000 ease-in-out`}
     >
+      {/* Autoplay Progress Countdown Bar */}
+      {isAutoplay && activeLandmarkIndex === null && !isBookingOpen && activeDetailedLandmark !== null && (
+        <div
+          key={currentIndex}
+          className="absolute top-0 left-0 h-1.5 bg-gradient-to-r from-amber-400 to-amber-500 z-50 animate-progress opacity-80"
+        ></div>
+      )}
+
       {/* 1. Subtle overlay grid texture for premium tech look */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:30px_30px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none z-10 animate-pulse-slow"></div>
 
@@ -40,7 +69,7 @@ export default function App() {
       />
 
       {/* 4. HTML/Tailwind CSS UI Overlays */}
-      <Navbar />
+      <Navbar onBookClick={() => setIsBookingOpen(true)} />
 
       <HeroText activeRegion={activeRegion} />
 
@@ -55,17 +84,39 @@ export default function App() {
         </button>
       )}
 
+      {/* Integrated Navigation and Autoplay Controls */}
       <NavigationControls
         onNext={handleNext}
         onPrev={handlePrev}
         currentIndex={currentIndex}
         total={regions.length}
+        isAutoplay={isAutoplay}
+        onToggleAutoplay={() => setIsAutoplay(!isAutoplay)}
       />
 
       <BottomCards 
         activeRegion={activeRegion} 
         activeLandmarkIndex={activeLandmarkIndex}
         setActiveLandmarkIndex={setActiveLandmarkIndex}
+        onExploreDetail={(landmark) => setActiveDetailedLandmark(landmark)}
+      />
+
+      {/* --- POPUP MODALS --- */}
+      {/* 1. Trip Booking Modal */}
+      <BookingModal
+        isOpen={isBookingOpen}
+        onClose={() => setIsBookingOpen(false)}
+        activeRegion={activeRegion}
+        regions={regions}
+      />
+
+      {/* 2. Landmark Travel Guide Modal */}
+      <LandmarkDetailModal
+        isOpen={activeDetailedLandmark !== null}
+        onClose={() => setActiveDetailedLandmark(null)}
+        landmark={activeDetailedLandmark}
+        region={activeRegion}
+        onBookTrip={() => setIsBookingOpen(true)}
       />
     </div>
   );

@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import { Star, MapPin, ZoomIn, ZoomOut } from 'lucide-react';
+import { Star, MapPin, ZoomIn, ZoomOut, Info } from 'lucide-react';
 import gsap from 'gsap';
 
-export default function BottomCards({ activeRegion, activeLandmarkIndex, setActiveLandmarkIndex }) {
+export default function BottomCards({ activeRegion, activeLandmarkIndex, setActiveLandmarkIndex, onExploreDetail }) {
   const cardsRef = useRef([]);
 
   useEffect(() => {
@@ -57,7 +57,7 @@ export default function BottomCards({ activeRegion, activeLandmarkIndex, setActi
               <div className={`flex items-center gap-1.5 font-display font-semibold text-lg transition-colors duration-300 ${
                 isSelected ? 'text-amber-400' : 'text-white group-hover:text-amber-400'
               }`}>
-                <MapPin className="w-4 h-4 text-amber-500 shrink-0 animate-bounce" />
+                <MapPin className="w-4 h-4 text-amber-500 shrink-0" />
                 {landmark.name}
               </div>
               <div className="flex items-center gap-1 bg-white/5 px-2.5 py-0.5 rounded-full text-xs font-semibold text-amber-400 border border-white/5 shrink-0">
@@ -73,24 +73,40 @@ export default function BottomCards({ activeRegion, activeLandmarkIndex, setActi
               {landmark.desc}
             </p>
 
-            {/* Zoom Action Link */}
-            <div className={`mt-4 flex items-center justify-between text-xs font-semibold transition-colors duration-300 ${
-              isSelected ? 'text-amber-400' : 'text-white/50 group-hover:text-white'
-            }`}>
-              <span className="flex items-center gap-1">
-                {isSelected ? (
-                  <>
-                    <ZoomOut className="w-3.5 h-3.5" /> Click to zoom out
-                  </>
-                ) : (
-                  <>
-                    <ZoomIn className="w-3.5 h-3.5" /> Click to zoom in
-                  </>
-                )}
-              </span>
-              <span className="transform translate-x-0 group-hover:translate-x-1.5 transition-transform duration-300">
-                {isSelected ? '←' : '→'}
-              </span>
+            {/* Zoom Action Link / Detail Action */}
+            <div className="mt-4 flex flex-col gap-2">
+              {/* Detailed Tips Button (only visible when focused) */}
+              {isSelected && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation(); // prevent toggling zoom
+                    onExploreDetail(landmark);
+                  }}
+                  className="py-2 w-full rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold tracking-wider active:scale-95 transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer uppercase shadow-md shadow-amber-500/10"
+                >
+                  <Info className="w-3.5 h-3.5" />
+                  Read Guides & Tips
+                </button>
+              )}
+
+              <div className={`flex items-center justify-between text-xs font-semibold transition-colors duration-300 ${
+                isSelected ? 'text-amber-400' : 'text-white/50 group-hover:text-white'
+              }`}>
+                <span className="flex items-center gap-1">
+                  {isSelected ? (
+                    <>
+                      <ZoomOut className="w-3.5 h-3.5" /> Click to zoom out
+                    </>
+                  ) : (
+                    <>
+                      <ZoomIn className="w-3.5 h-3.5" /> Click to zoom in
+                    </>
+                  )}
+                </span>
+                <span className="transform translate-x-0 group-hover:translate-x-1.5 transition-transform duration-300">
+                  {isSelected ? '←' : '→'}
+                </span>
+              </div>
             </div>
           </div>
         );
